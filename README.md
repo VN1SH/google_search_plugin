@@ -26,7 +26,7 @@ pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
 
 1.  **接收问题**: 插件接收到用户的原始问题。
 2.  **查询重写**: 插件内部的LLM结合聊天上下文，将原始问题重写为一个或多个精确的搜索关键词。
-3.  **后端搜索**: 使用重写后的关键词，调用Google、Bing等搜索引擎执行搜索。
+3.  **后端搜索**: 使用重写后的关键词，调用Google、Bing、百度等搜索引擎执行搜索。
 4.  **内容抓取**: (可选) 抓取搜索结果网页的主要内容。
 5.  **阅读总结**: 内部LLM阅读所有搜索到的材料。
 6.  **生成答案**: LLM根据阅读的材料，生成最终的总结性答案并返回。
@@ -47,7 +47,7 @@ pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
 ### `[search_backend]`
 这里配置供模型调用的“后端”搜索引擎的行为。
 
-- `default_engine` (str, 下拉 choices): 默认使用的搜索引擎 (`google`, `bing`, `sogou`, `duckduckgo`, `tavily`, `you`, `you_news`)。
+- `default_engine` (str, 下拉 choices): 默认使用的搜索引擎 (`google`, `baidu`, `bing`, `sogou`, `duckduckgo`, `tavily`, `you`, `you_news`)。
 - `max_results` (int): 每次搜索返回给模型阅读的结果数量。
 - `timeout` (int): 后端搜索引擎的超时时间。
 - `proxy` (str): 用于后端搜索的HTTP/HTTPS代理地址，例如 'http://127.0.0.1:7890'。默认为空字符串，表示不使用代理。
@@ -60,6 +60,7 @@ pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
 
 - `google_enabled` (bool, 默认 false): 是否启用 Google。
 - `google_language` (str): Google 搜索语言。
+- `baidu_enabled` (bool, 默认 false): 是否启用百度。
 - `bing_enabled` (bool, 默认 true): 是否启用 Bing。
 - `bing_region` (str): Bing 区域代码。
 - `sogou_enabled` (bool, 默认 true): 是否启用搜狗。
