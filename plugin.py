@@ -32,6 +32,7 @@ from src.plugin_system import (
 )
 from .search_engines.base import SearchResult
 from .search_engines.google import GoogleEngine
+from .search_engines.baidu import BaiduEngine
 from .search_engines.bing import BingEngine
 from .search_engines.sogou import SogouEngine
 from .search_engines.duckduckgo import DuckDuckGoEngine
@@ -60,6 +61,8 @@ def _build_engine_config(engine_name: str, engines_config: Dict[str, Any], commo
                 "language": engines_config.get("google_language", "zh-cn"),
             }
         )
+    elif engine_name == "baidu":
+        cfg.update({"enabled": engines_config.get("baidu_enabled", False)})
     elif engine_name == "bing":
         cfg.update(
             {
@@ -135,6 +138,7 @@ class WebSearchTool(BaseTool):
     
     # 实例属性类型注解
     google: GoogleEngine
+    baidu: BaiduEngine
     bing: BingEngine
     sogo: SogouEngine
     duckduckgo: DuckDuckGoEngine
@@ -175,6 +179,7 @@ class WebSearchTool(BaseTool):
         }
 
         google_config = _build_engine_config("google", engines_config, common_config)
+        baidu_config = _build_engine_config("baidu", engines_config, common_config)
         bing_config = _build_engine_config("bing", engines_config, common_config)
         sogou_config = _build_engine_config("sogou", engines_config, common_config)
         duckduckgo_config = _build_engine_config("duckduckgo", engines_config, common_config)
@@ -184,6 +189,7 @@ class WebSearchTool(BaseTool):
         you_contents_config = _build_engine_config("you_contents", engines_config, contents_common_config)
 
         self.google = GoogleEngine(google_config)
+        self.baidu = BaiduEngine(baidu_config)
         self.bing = BingEngine(bing_config)
         self.sogo = SogouEngine(sogou_config)
         self.duckduckgo = DuckDuckGoEngine(duckduckgo_config)
@@ -621,6 +627,7 @@ class WebSearchTool(BaseTool):
             ("you", self.you),
             ("you_news", self.you_news),
             ("google", self.google),
+            ("baidu", self.baidu),
             ("bing", self.bing),
             ("duckduckgo", self.duckduckgo),
             ("sogou", self.sogo),
@@ -636,7 +643,13 @@ class WebSearchTool(BaseTool):
             # 检查引擎是否启用（平铺字段），缺省时依据默认：google/tavily 默认禁用，其余启用
             is_enabled = engines_config.get(f"{engine_name}_enabled")
             if is_enabled is None:
-                defaults = {"google": False, "tavily": False, "you": False, "you_news": False}
+                defaults = {
+                    "google": False,
+                    "baidu": False,
+                    "tavily": False,
+                    "you": False,
+                    "you_news": False,
+                }
                 is_enabled = defaults.get(engine_name, True)
             if not is_enabled:
                 logger.info(f"搜索引擎 {engine_name} 已禁用，跳过")
@@ -1167,8 +1180,8 @@ class google_search_simple(BasePlugin):
             "default_engine": ConfigField(
                 type=str,
                 default="bing",
-                description="默认搜索引擎 (google/bing/sogou/duckduckgo/tavily/you/you_news)",
-                choices=["google", "bing", "sogou", "duckduckgo", "tavily", "you", "you_news"],
+                description="默认搜索引擎 (google/baidu/bing/sogou/duckduckgo/tavily/you/you_news)",
+                choices=["google", "baidu", "bing", "sogou", "duckduckgo", "tavily", "you", "you_news"],
             ),
             "max_results": ConfigField(type=int, default=15, description="默认返回结果数量"),
             "timeout": ConfigField(type=int, default=20, description="搜索超时时间（秒）"),
@@ -1190,6 +1203,7 @@ class google_search_simple(BasePlugin):
         "engines": {
             "google_enabled": ConfigField(type=bool, default=False, description="是否启用Google搜索"),
             "google_language": ConfigField(type=str, default="zh-cn", description="搜索语言"),
+            "baidu_enabled": ConfigField(type=bool, default=False, description="是否启用百度搜索"),
             "bing_enabled": ConfigField(type=bool, default=True, description="是否启用Bing搜索"),
             "bing_region": ConfigField(type=str, default="zh-CN", description="Bing搜索区域代码"),
             "sogou_enabled": ConfigField(type=bool, default=True, description="是否启用搜狗搜索"),
